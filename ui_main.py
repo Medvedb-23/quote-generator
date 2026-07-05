@@ -48,7 +48,7 @@ class MainWindow(QMainWindow):
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
-        self.table.setColumnHidden(0, True)  # скрываем ID
+        self.table.setColumnHidden(0, True)
         left_layout.addWidget(self.table)
 
         btn_layout = QHBoxLayout()
@@ -102,6 +102,22 @@ class MainWindow(QMainWindow):
         splitter.setSizes([550, 350])
         main_layout.addWidget(splitter)
 
+        self.setStyleSheet("""
+            QPushButton {
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                padding: 6px 12px;
+                border-radius: 4px;
+            }
+            QPushButton:hover {
+                background-color: #45a049;
+            }
+            QTableWidget {
+                alternate-background-color: #f2f2f2;
+            }
+        """)
+
         self._bind_signals()
         self._refresh_categories()
         self._refresh_table()
@@ -118,6 +134,7 @@ class MainWindow(QMainWindow):
         self.chk_fav_filter.stateChanged.connect(self._on_filter_changed)
 
     def _refresh_categories(self):
+        self.cmb_category_filter.blockSignals(True)
         current = self.cmb_category_filter.currentText()
         self.cmb_category_filter.clear()
         self.cmb_category_filter.addItem("Все")
@@ -126,6 +143,7 @@ class MainWindow(QMainWindow):
         idx = self.cmb_category_filter.findText(current)
         if idx >= 0:
             self.cmb_category_filter.setCurrentIndex(idx)
+        self.cmb_category_filter.blockSignals(False)
 
     def _refresh_table(self):
         category = self.cmb_category_filter.currentText()
@@ -142,7 +160,7 @@ class MainWindow(QMainWindow):
             self.table.setItem(i, 5, QTableWidgetItem(rec["date"] or ""))
         self._refresh_categories()
 
-    def _on_filter_changed(self):
+    def _on_filter_changed(self, value=None):
         self._refresh_table()
 
     def _on_select_row(self):
